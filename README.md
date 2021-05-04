@@ -17,5 +17,5 @@ $ kubebuilder edit --multigroup=true
 $ kubebuilder create api --group core --version v1alpha1 --kind Release
 
 # add 3rd api group
-$ kubebuilder create api --group core --version v1alpha1 --kind Release
+$ kubebuilder create api --group chart --version v1alpha1 --kind Repository
 ```
