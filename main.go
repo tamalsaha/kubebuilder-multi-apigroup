@@ -31,12 +31,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	modulev1alpha1 "github.com/tamalsaha/kubebuilder-multi-apigroup/api/v1alpha1"
 	chartv1alpha1 "github.com/tamalsaha/kubebuilder-multi-apigroup/apis/chart/v1alpha1"
 	corev1alpha1 "github.com/tamalsaha/kubebuilder-multi-apigroup/apis/core/v1alpha1"
-	"github.com/tamalsaha/kubebuilder-multi-apigroup/controllers"
+	modulev1alpha1 "github.com/tamalsaha/kubebuilder-multi-apigroup/apis/module/v1alpha1"
 	chartcontrollers "github.com/tamalsaha/kubebuilder-multi-apigroup/controllers/chart"
 	corecontrollers "github.com/tamalsaha/kubebuilder-multi-apigroup/controllers/core"
+	modulecontrollers "github.com/tamalsaha/kubebuilder-multi-apigroup/controllers/module"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -84,17 +84,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.WorkflowReconciler{
+	if err = (&modulecontrollers.WorkflowReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Workflow"),
+		Log:    ctrl.Log.WithName("controllers").WithName("module").WithName("Workflow"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Workflow")
 		os.Exit(1)
 	}
-	if err = (&controllers.ActionReconciler{
+	if err = (&modulecontrollers.ActionReconciler{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("Action"),
+		Log:    ctrl.Log.WithName("controllers").WithName("module").WithName("Action"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Action")

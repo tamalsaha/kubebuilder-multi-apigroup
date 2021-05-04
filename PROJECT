@@ -12,7 +12,7 @@ resources:
   domain: x-helm.dev
   group: module
   kind: Workflow
-  path: github.com/tamalsaha/kubebuilder-multi-apigroup/api/v1alpha1
+  path: github.com/tamalsaha/kubebuilder-multi-apigroup/apis/module/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -21,7 +21,7 @@ resources:
   domain: x-helm.dev
   group: module
   kind: Action
-  path: github.com/tamalsaha/kubebuilder-multi-apigroup/api/v1alpha1
+  path: github.com/tamalsaha/kubebuilder-multi-apigroup/apis/module/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1

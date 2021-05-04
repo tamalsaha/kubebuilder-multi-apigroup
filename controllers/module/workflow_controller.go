@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package module
 
 import (
 	"context"
@@ -24,7 +24,7 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	modulev1alpha1 "github.com/tamalsaha/kubebuilder-multi-apigroup/api/v1alpha1"
+	modulev1alpha1 "github.com/tamalsaha/kubebuilder-multi-apigroup/apis/module/v1alpha1"
 )
 
 // WorkflowReconciler reconciles a Workflow object
