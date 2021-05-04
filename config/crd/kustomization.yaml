@@ -5,6 +5,7 @@ resources:
 - bases/module.x-helm.dev_workflows.yaml
 - bases/module.x-helm.dev_actions.yaml
 - bases/core.x-helm.dev_releases.yaml
+- bases/chart.x-helm.dev_repositories.yaml
 #+kubebuilder:scaffold:crdkustomizeresource
 
 patchesStrategicMerge:
@@ -13,6 +14,7 @@ patchesStrategicMerge:
 #- patches/webhook_in_workflows.yaml
 #- patches/webhook_in_actions.yaml
 #- patches/webhook_in_releases.yaml
+#- patches/webhook_in_repositories.yaml
 #+kubebuilder:scaffold:crdkustomizewebhookpatch
 
 # [CERTMANAGER] To enable webhook, uncomment all the sections with [CERTMANAGER] prefix.
@@ -20,6 +22,7 @@ patchesStrategicMerge:
 #- patches/cainjection_in_workflows.yaml
 #- patches/cainjection_in_actions.yaml
 #- patches/cainjection_in_releases.yaml
+#- patches/cainjection_in_repositories.yaml
 #+kubebuilder:scaffold:crdkustomizecainjectionpatch
 
 # the following config is for teaching kustomize how to do kustomization for CRDs.

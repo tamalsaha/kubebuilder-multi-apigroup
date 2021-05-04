@@ -32,8 +32,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	modulev1alpha1 "github.com/tamalsaha/kubebuilder-multi-apigroup/api/v1alpha1"
+	chartv1alpha1 "github.com/tamalsaha/kubebuilder-multi-apigroup/apis/chart/v1alpha1"
 	corev1alpha1 "github.com/tamalsaha/kubebuilder-multi-apigroup/apis/core/v1alpha1"
 	"github.com/tamalsaha/kubebuilder-multi-apigroup/controllers"
+	chartcontrollers "github.com/tamalsaha/kubebuilder-multi-apigroup/controllers/chart"
 	corecontrollers "github.com/tamalsaha/kubebuilder-multi-apigroup/controllers/core"
 	//+kubebuilder:scaffold:imports
 )
@@ -48,6 +50,7 @@ func init() {
 
 	utilruntime.Must(modulev1alpha1.AddToScheme(scheme))
 	utilruntime.Must(corev1alpha1.AddToScheme(scheme))
+	utilruntime.Must(chartv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
 
@@ -103,6 +106,14 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Release")
+		os.Exit(1)
+	}
+	if err = (&chartcontrollers.RepositoryReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("chart").WithName("Repository"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Repository")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

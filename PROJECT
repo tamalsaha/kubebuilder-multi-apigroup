@@ -32,4 +32,13 @@ resources:
   kind: Release
   path: github.com/tamalsaha/kubebuilder-multi-apigroup/apis/core/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: x-helm.dev
+  group: chart
+  kind: Repository
+  path: github.com/tamalsaha/kubebuilder-multi-apigroup/apis/chart/v1alpha1
+  version: v1alpha1
 version: "3"
