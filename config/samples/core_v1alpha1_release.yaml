@@ -1,0 +1,7 @@
+apiVersion: core.x-helm.dev/v1alpha1
+kind: Release
+metadata:
+  name: release-sample
+spec:
+  # Add fields here
+  foo: bar

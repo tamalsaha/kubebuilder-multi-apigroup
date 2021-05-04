@@ -1,0 +1,24 @@
+# permissions for end users to edit actions.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: action-editor-role
+rules:
+- apiGroups:
+  - module.x-helm.dev
+  resources:
+  - actions
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - module.x-helm.dev
+  resources:
+  - actions/status
+  verbs:
+  - get

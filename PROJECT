@@ -1,0 +1,35 @@
+domain: x-helm.dev
+layout:
+- go.kubebuilder.io/v3
+multigroup: true
+projectName: kubebuilder-multi-apigroup
+repo: github.com/tamalsaha/kubebuilder-multi-apigroup
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: x-helm.dev
+  group: module
+  kind: Workflow
+  path: github.com/tamalsaha/kubebuilder-multi-apigroup/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: x-helm.dev
+  group: module
+  kind: Action
+  path: github.com/tamalsaha/kubebuilder-multi-apigroup/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: x-helm.dev
+  group: core
+  kind: Release
+  path: github.com/tamalsaha/kubebuilder-multi-apigroup/apis/core/v1alpha1
+  version: v1alpha1
+version: "3"
