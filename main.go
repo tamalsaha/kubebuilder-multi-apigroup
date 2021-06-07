@@ -22,11 +22,17 @@ import (
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
+	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	auditlib "go.bytebuilders.dev/audit/lib"
+	_ "go.bytebuilders.dev/license-verifier/info"
+	license "go.bytebuilders.dev/license-verifier/kubernetes"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"kmodules.xyz/client-go/discovery"
+	"kmodules.xyz/client-go/tools/cli"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
@@ -55,9 +61,12 @@ func init() {
 }
 
 func main() {
+	var licenseFile string
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	flag.StringVar(&licenseFile, "license-file", licenseFile, "Path to license file")
+	flag.BoolVar(&cli.EnableAnalytics, "enable-analytics", cli.EnableAnalytics, "Send analytical events")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -70,6 +79,8 @@ func main() {
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+
+	ctx := ctrl.SetupSignalHandler()
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
@@ -84,6 +95,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	// audit event publisher
+	var auditor *auditlib.EventPublisher
+	if licenseFile != "" && cli.EnableAnalytics {
+		cfg := mgr.GetConfig()
+		kc, err := kubernetes.NewForConfig(cfg)
+		if err != nil {
+			setupLog.Error(err, "unable to create Kubernetes client")
+			os.Exit(1)
+		}
+		mapper := discovery.NewResourceMapper(mgr.GetRESTMapper())
+		fn := auditlib.BillingEventCreator{
+			Mapper: mapper,
+		}
+		auditor = auditlib.NewResilientEventPublisher(func() (*auditlib.NatsConfig, error) {
+			return auditlib.NewNatsConfig(kc.CoreV1().Namespaces(), licenseFile)
+		}, mapper, fn.CreateEvent)
+	}
+
 	if err = (&modulecontrollers.WorkflowReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("module").WithName("Workflow"),
@@ -92,6 +121,11 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Workflow")
 		os.Exit(1)
 	}
+	if err = auditor.SetupWithManager(ctx, mgr, &modulev1alpha1.Workflow{}); err != nil {
+		setupLog.Error(err, "unable to set up auditor", "auditor", "Workflow")
+		os.Exit(1)
+	}
+
 	if err = (&modulecontrollers.ActionReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("module").WithName("Action"),
@@ -127,8 +161,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Start periodic license verification
+	//nolint:errcheck
+	go license.VerifyLicensePeriodically(mgr.GetConfig(), licenseFile, ctx.Done())
+
 	setupLog.Info("starting manager")
-	if err := mgr.Start(ctrl.SetupSignalHandler()); err != nil {
+	if err := mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}

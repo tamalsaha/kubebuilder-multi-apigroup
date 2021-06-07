@@ -57,11 +57,30 @@ test: manifests generate fmt vet ## Run tests.
 
 ##@ Build
 
+PRODUCT_OWNER_NAME := appscode
+PRODUCT_NAME       := kubeform-community
+ENFORCE_LICENSE    ?=
+LICENSE_FILE       ?=
+
 build: generate fmt vet ## Build manager binary.
-	go build -o bin/manager main.go
+	go build \
+	  -ldflags " \
+		-X 'go.bytebuilders.dev/license-verifier/info.EnforceLicense=$(ENFORCE_LICENSE)' \
+		-X 'go.bytebuilders.dev/license-verifier/info.LicenseCA=$$(curl -fsSL https://licenses.appscode.com/certificates/ca.crt)' \
+		-X 'go.bytebuilders.dev/license-verifier/info.ProductOwnerName=$(PRODUCT_OWNER_NAME)' \
+		-X 'go.bytebuilders.dev/license-verifier/info.ProductName=$(PRODUCT_NAME)' \
+	  " \
+	  -o bin/manager main.go
 
 run: manifests generate fmt vet ## Run a controller from your host.
-	go run ./main.go
+	go run \
+	  -ldflags " \
+		-X 'go.bytebuilders.dev/license-verifier/info.EnforceLicense=$(ENFORCE_LICENSE)' \
+		-X 'go.bytebuilders.dev/license-verifier/info.LicenseCA=$$(curl -fsSL https://licenses.appscode.com/certificates/ca.crt)' \
+		-X 'go.bytebuilders.dev/license-verifier/info.ProductOwnerName=$(PRODUCT_OWNER_NAME)' \
+		-X 'go.bytebuilders.dev/license-verifier/info.ProductName=$(PRODUCT_NAME)' \
+      " \
+	  ./main.go --license-file=$(LICENSE_FILE)
 
 docker-build: test ## Build docker image with the manager.
 	docker build -t ${IMG} .
